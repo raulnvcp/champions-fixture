@@ -53,8 +53,6 @@ export default async function FixturesPage() {
     .filter((m) => m.status === "finished")
     .sort((a, b) => new Date(b.utc_date).getTime() - new Date(a.utc_date).getTime());
 
-  void statusOrder;
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-8">League Stage</h1>
