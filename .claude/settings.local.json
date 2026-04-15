@@ -8,7 +8,8 @@
       "Bash(cmd /c robocopy \"C:\\\\Users\\\\rauln\\\\OneDrive\\\\Documents\\\\Claude Code\\\\fixture\" \"C:\\\\Users\\\\rauln\\\\OneDrive\\\\Documents\\\\Claude Code\\\\fixture2\" /E /XD node_modules .next .git /XF package-lock.json tsconfig.tsbuildinfo)",
       "Bash(powershell:*)",
       "Bash(curl -s http://localhost:3000/fixtures)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(vercel --version)"
     ]
   }
 }
