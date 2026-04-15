@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.football-data.org)",
+      "Bash(curl -s -H \"X-Auth-Token: dc1d3e0200b5499ca2bd981a1771273e\" \"https://api.football-data.org/v4/competitions/WC/matches?season=2026\")",
+      "Bash(python3 -c ':*)",
+      "Bash(npx tsc:*)",
+      "Bash(cmd /c robocopy \"C:\\\\Users\\\\rauln\\\\OneDrive\\\\Documents\\\\Claude Code\\\\fixture\" \"C:\\\\Users\\\\rauln\\\\OneDrive\\\\Documents\\\\Claude Code\\\\fixture2\" /E /XD node_modules .next .git /XF package-lock.json tsconfig.tsbuildinfo)",
+      "Bash(powershell:*)",
+      "Bash(curl -s http://localhost:3000/fixtures)",
+      "Bash(curl:*)"
+    ]
+  }
+}
