@@ -61,8 +61,10 @@ const STAGE_LABELS: Record<string, string> = {
 export default function MatchCard({ match, prediction, isLoggedIn }: MatchCardProps) {
   const isFinished = match.status === "finished";
   const isLive = match.status === "live";
+  const homeWins = isFinished && match.winner === "HOME_TEAM";
+  const awayWins = isFinished && match.winner === "AWAY_TEAM";
 
-  const topBorderColor = isFinished ? "border-t-emerald-600/60" : "border-t-border";
+  const topBorderColor = isFinished ? "border-t-emerald-500/70" : "border-t-border";
 
   const stageLabel =
     match.stage === "group"
@@ -114,7 +116,7 @@ export default function MatchCard({ match, prediction, isLoggedIn }: MatchCardPr
               alt={match.home_team_name}
               width={40}
               height={40}
-              className="object-contain h-10 w-10"
+              className={`object-contain h-10 w-10 transition-all ${homeWins ? "drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" : awayWins ? "opacity-40" : ""}`}
               unoptimized
             />
           ) : (
@@ -123,7 +125,7 @@ export default function MatchCard({ match, prediction, isLoggedIn }: MatchCardPr
             </div>
           )}
           <span
-            className="text-xs font-semibold text-center leading-tight w-full truncate"
+            className={`text-xs font-semibold text-center leading-tight w-full truncate ${homeWins ? "text-emerald-400" : awayWins ? "opacity-50" : ""}`}
             style={{ fontFamily: "var(--font-space-grotesk)" }}
           >
             {match.home_team_tla ?? match.home_team_name}
@@ -135,14 +137,14 @@ export default function MatchCard({ match, prediction, isLoggedIn }: MatchCardPr
           {isFinished || isLive ? (
             <div className="flex items-center gap-1.5">
               <span
-                className="text-3xl font-bold tabular-nums w-8 text-center leading-none"
+                className={`text-3xl font-bold tabular-nums w-8 text-center leading-none ${homeWins ? "text-emerald-400" : ""}`}
                 style={{ fontFamily: "var(--font-space-grotesk)" }}
               >
                 {match.home_score ?? 0}
               </span>
               <span className="text-muted-foreground text-lg font-light">:</span>
               <span
-                className="text-3xl font-bold tabular-nums w-8 text-center leading-none"
+                className={`text-3xl font-bold tabular-nums w-8 text-center leading-none ${awayWins ? "text-emerald-400" : ""}`}
                 style={{ fontFamily: "var(--font-space-grotesk)" }}
               >
                 {match.away_score ?? 0}
@@ -166,7 +168,7 @@ export default function MatchCard({ match, prediction, isLoggedIn }: MatchCardPr
               alt={match.away_team_name}
               width={40}
               height={40}
-              className="object-contain h-10 w-10"
+              className={`object-contain h-10 w-10 transition-all ${awayWins ? "drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" : homeWins ? "opacity-40" : ""}`}
               unoptimized
             />
           ) : (
@@ -175,7 +177,7 @@ export default function MatchCard({ match, prediction, isLoggedIn }: MatchCardPr
             </div>
           )}
           <span
-            className="text-xs font-semibold text-center leading-tight w-full truncate"
+            className={`text-xs font-semibold text-center leading-tight w-full truncate ${awayWins ? "text-emerald-400" : homeWins ? "opacity-50" : ""}`}
             style={{ fontFamily: "var(--font-space-grotesk)" }}
           >
             {match.away_team_tla ?? match.away_team_name}

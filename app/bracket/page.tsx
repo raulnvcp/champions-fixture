@@ -1,15 +1,24 @@
 import { createClient } from "@/lib/supabase/server";
 import MatchCard, { type DbPrediction } from "@/components/match-card";
+import BracketView from "@/components/bracket-view";
 
 export const revalidate = 30;
 
-const ROUNDS = [
-  { stage: "round_of_32", label: "Round of 32" },
-  { stage: "round_of_16", label: "Round of 16" },
+// Stages shown in the visual bracket tree
+const VISUAL_STAGES = new Set([
+  "round_of_16",
+  "quarter_final",
+  "semi_final",
+  "final",
+]);
+
+// All knockout rounds shown in the results list below the bracket
+const RESULT_ROUNDS = [
+  { stage: "playoffs",      label: "Knockout Play-offs" },
+  { stage: "round_of_16",  label: "Round of 16" },
   { stage: "quarter_final", label: "Quarter-finals" },
-  { stage: "semi_final", label: "Semi-finals" },
-  { stage: "third_place", label: "Third Place" },
-  { stage: "final", label: "Final" },
+  { stage: "semi_final",   label: "Semi-finals" },
+  { stage: "final",        label: "Final" },
 ] as const;
 
 export default async function BracketPage() {
@@ -19,22 +28,24 @@ export default async function BracketPage() {
     supabase
       .from("matches")
       .select("*")
-      .neq("stage", "group")
-      .order("utc_date", { ascending: true }),
+      .neq("stage", "league_stage")   // exclude all 144 league-phase matches
+      .order("id", { ascending: true }),
     supabase.auth.getUser(),
   ]);
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8 text-destructive">
+      <div className="max-w-[1440px] mx-auto px-4 py-8 text-destructive">
         Failed to load bracket: {error.message}
       </div>
     );
   }
 
+  const allMatches = matches ?? [];
+
   let predictionsMap = new Map<number, DbPrediction>();
-  if (user && matches && matches.length > 0) {
-    const matchIds = matches.map((m) => m.id);
+  if (user && allMatches.length > 0) {
+    const matchIds = allMatches.map((m) => m.id);
     const { data: predictions } = await supabase
       .from("predictions")
       .select("match_id, home_score, away_score, points")
@@ -44,55 +55,66 @@ export default async function BracketPage() {
     }
   }
 
+  const visualMatches = allMatches.filter((m) => VISUAL_STAGES.has(m.stage));
+
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-8">Knockout Bracket</h1>
+    <div className="max-w-[1440px] mx-auto px-4 py-8">
+      <h1 className="text-3xl font-extrabold mb-8 bg-gradient-to-r from-cyan-400 via-sky-300 to-emerald-400 bg-clip-text text-transparent tracking-tight">
+        Knockout Bracket
+      </h1>
 
-      <div className="space-y-12">
-        {ROUNDS.map(({ stage, label }) => {
-          const roundMatches = (matches ?? []).filter((m) => m.stage === stage);
-          if (roundMatches.length === 0) return null;
+      {allMatches.length === 0 ? (
+        <p className="text-muted-foreground text-sm">
+          Knockout matches will appear here once the group stage is complete.
+        </p>
+      ) : (
+        <div className="space-y-12">
+          {/* Visual bracket tree */}
+          {visualMatches.length > 0 && (
+            <BracketView matches={visualMatches} />
+          )}
 
-          const cols =
-            roundMatches.length >= 8
-              ? "sm:grid-cols-2 lg:grid-cols-4"
-              : roundMatches.length >= 4
-              ? "sm:grid-cols-2 lg:grid-cols-3"
-              : roundMatches.length >= 2
-              ? "sm:grid-cols-2"
-              : "max-w-sm";
+          {/* Individual match results for every knockout round */}
+          {RESULT_ROUNDS.map(({ stage, label }) => {
+            const roundMatches = allMatches.filter((m) => m.stage === stage);
+            if (roundMatches.length === 0) return null;
 
-          return (
-            <section key={stage}>
-              <div className="flex items-center gap-3 mb-4">
-                <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                  {label}
-                </h2>
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-xs text-muted-foreground">
-                  {roundMatches.length} {roundMatches.length === 1 ? "match" : "matches"}
-                </span>
-              </div>
-              <div className={`grid gap-3 ${cols}`}>
-                {roundMatches.map((match) => (
-                  <MatchCard
-                    key={match.id}
-                    match={match}
-                    prediction={predictionsMap.get(match.id) ?? null}
-                    isLoggedIn={!!user}
-                  />
-                ))}
-              </div>
-            </section>
-          );
-        })}
+            const cols =
+              roundMatches.length >= 8
+                ? "sm:grid-cols-2 lg:grid-cols-4"
+                : roundMatches.length >= 4
+                ? "sm:grid-cols-2 lg:grid-cols-2"
+                : roundMatches.length >= 2
+                ? "sm:grid-cols-2"
+                : "max-w-sm mx-auto";
 
-        {(!matches || matches.length === 0) && (
-          <p className="text-muted-foreground text-sm">
-            Knockout matches will appear here once the group stage is complete.
-          </p>
-        )}
-      </div>
+            return (
+              <section key={stage}>
+                <div className="flex items-center gap-3 mb-4">
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-400/70">
+                    {label}
+                  </h2>
+                  <div className="flex-1 h-px bg-gradient-to-r from-cyan-500/30 to-transparent" />
+                  <span className="text-xs text-muted-foreground">
+                    {roundMatches.length}{" "}
+                    {roundMatches.length === 1 ? "match" : "matches"}
+                  </span>
+                </div>
+                <div className={`grid gap-3 ${cols}`}>
+                  {roundMatches.map((match) => (
+                    <MatchCard
+                      key={match.id}
+                      match={match}
+                      prediction={predictionsMap.get(match.id) ?? null}
+                      isLoggedIn={!!user}
+                    />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
