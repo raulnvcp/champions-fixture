@@ -9,7 +9,8 @@
       "Bash(powershell:*)",
       "Bash(curl -s http://localhost:3000/fixtures)",
       "Bash(curl:*)",
-      "Bash(vercel --version)"
+      "Bash(vercel --version)",
+      "Bash(claudelint validate-skills:*)"
     ]
   }
 }

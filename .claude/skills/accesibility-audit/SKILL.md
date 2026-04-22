@@ -1,7 +1,13 @@
 ---
 name: accesibility-audit
-description: Checks for accesibility issues in a web application. Use when you want to ensure your web application is accessible to all users, including those with disabilities. This skill can help identify common accessibility issues and provide recommendations for improvement.
+description: Checks for accessibility issues in a web application and identifies common violations with recommendations for improvement. Use when ensuring a web application is accessible to all users, including those with disabilities.
 ---
+
+## Usage
+
+Run `/accesibility-audit` to audit the current web application for accessibility issues.
+
+## Instructions
 
 Check for:
 - Proper ARIA labels and roles

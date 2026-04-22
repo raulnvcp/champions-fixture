@@ -3,6 +3,12 @@ name: pr-description
 description: Writes pull request descriptions. Use when create a PR, writing a PR, or when the user ask to summarize changes for a PR.
 ---
 
+## Usage
+
+Run `/pr-description` to generate a pull request description for the current branch.
+
+## Instructions
+
 When writing a PR description:
 
 1. Run 'git diff main...HEAD' to see all changes on this branch 
