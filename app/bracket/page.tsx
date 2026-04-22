@@ -79,6 +79,14 @@ export default async function BracketPage() {
             const roundMatches = allMatches.filter((m) => m.stage === stage);
             if (roundMatches.length === 0) return null;
 
+            const sorted = [...roundMatches].sort((a, b) => {
+              const aFinished = a.status === "finished";
+              const bFinished = b.status === "finished";
+              if (aFinished !== bFinished) return aFinished ? 1 : -1;
+              if (aFinished) return b.utc_date.localeCompare(a.utc_date);
+              return a.utc_date.localeCompare(b.utc_date);
+            });
+
             const cols =
               roundMatches.length >= 8
                 ? "sm:grid-cols-2 lg:grid-cols-4"
@@ -101,7 +109,7 @@ export default async function BracketPage() {
                   </span>
                 </div>
                 <div className={`grid gap-3 ${cols}`}>
-                  {roundMatches.map((match) => (
+                  {sorted.map((match) => (
                     <MatchCard
                       key={match.id}
                       match={match}
